@@ -1,0 +1,81 @@
+---
+title: "Homework 5"
+author: "Ryan"
+date: "April 14, 2018"
+output: pdf_document
+---
+
+```{r, include=FALSE}
+library(alr4)
+library(car)
+attach(UN11)
+```
+# 6.1
+```{r}
+NH <- lm(lifeExpF ~ 1)
+AH <- lm(lifeExpF ~ group)
+anova(NH, AH)
+```
+The F-statistic of ~160 and corrosponding p-value of nearly 0 implies that group should be included in the model.
+
+# 6.2
+Neither model 6.7 or 6.8 are submodels of the other. As such, it would not make sense to do an F-test between them.
+
+# 6.4
+## 1
+The NH model does not include the main effect from group, however, it does account for group's interaction with log(ppgdp). Since group is not included but a higher-order term including group is, this is a violation of the marginality principle.
+
+##2
+```{r}
+NH <- lm(lifeExpF ~ log(ppgdp) + group:log(ppgdp))
+AH <- lm(lifeExpF ~ group + log(ppgdp) + group:log(ppgdp))
+anova(NH, AH)
+```
+The F-statistic's p-value of 0.056 for group is not significant. As such, we conclude that group should not be included in the model. 
+
+# 6.7
+## 1
+```{r, include = FALSE}
+attach(fuel2001)
+```
+```{r}
+m1 <- lm(FuelC ~ Tax + Drivers + Income + log(Miles))
+m2 <- lm(FuelC ~ log(Miles) + Income + Drivers + Tax)
+anova(m1)
+anova(m2)
+```
+According to Type I ANOVA on the first model, the predictors Tax and Drivers are the only significant ones. As for Type I ANOVA on the second model, log(Miles), Income and Drivers are all significant. 
+
+## 2
+```{r}
+Anova(m1, type = "II")
+Anova(m2, type = "II")
+```
+The Type II ANOVA test are the same as the the Type I ANOVA test on the first model (Since Drivers is far and away the most significant term.)
+
+# 6.8
+attached image
+
+# 6.9
+## 1
+```{r, include = FALSE}
+attach(cakes)
+```
+```{r}
+NH <- lm(Y ~ X1 + I(X1^2) + X2 + I(X2^2))
+AH <- lm(Y ~ X1 + I(X1^2) + X2 + I(X2^2) + X1:X2)
+anova(NH, AH)
+```
+The F-statistic of 15.1 and corrosponding p-value well under 0.05 implies that the model without the interaction term perfroms significantly worse. As such, we conclude that X1:X2 should not be dropped. 
+```{r}
+NH <- lm(Y ~ X1 + X2 + I(X2^2) + X1:X2)
+AH <- lm(Y ~ X1 + I(X1^2) + X2 + I(X2^2) + X1:X2)
+anova(NH, AH)
+```
+The F-statistic of 15.8 and corrosponding p-value well under 0.05 implies that the model without the interaction term perfroms significantly worse. As such, we conclude that X1^2 should not be dropped.
+```{r}
+NH <- lm(Y ~ X2 + I(X2^2))
+AH <- lm(Y ~ X1 + I(X1^2) + X2 + I(X2^2) + X1:X2)
+anova(NH, AH)
+```
+The significant F-statistic of ~18.1 (p-value << 0.05) implies there is sufficient evidence to reject the null hypothesis.

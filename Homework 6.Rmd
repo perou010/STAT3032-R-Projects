@@ -1,0 +1,134 @@
+---
+title: "Homework 6"
+author: "Ryan Peroutka"
+date: "April 30, 2018"
+output: pdf_document
+---
+```{r, include = FALSE}
+library(alr4)
+library(car)
+```
+# 9.1
+## 1
+```{r}
+attach(Rpdata)
+plot(Rpdata, pch = '.')
+```
+The data look fairly normal. The plot of y against x6 looks to have some curvature in its mean function.
+
+## 2
+```{r}
+m1 = lm(y ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(m1)
+```
+It is somewhat unusual that all of the regressors are significant, but the intercept is not. In addition,
+the R^2 value is quite low.
+
+## 3
+```{r}
+residualPlots(m1, pch = '.')
+```
+Te residual plots for x1, x3 and x6 look to have curavture. As such, they indicate the linearity
+assumption is not accurate in regards to these regressors. 
+
+# 9.8 
+```{r}
+attach(water)
+m2 = lm(log(BSAAM) ~ log(APMAM) + log(APSAB) + log(APSLAKE) + log(OPBPC) + log(OPRC) +log(OPSLAKE))
+pValues = residualPlots(m2)
+pValues
+```
+The p-values do not indicate any significant curvature. 
+
+# 9.10
+```{r}
+n = 54
+pPrime = 5
+sigmaHat = 4.0
+e_iHat = c(1.000, 1.732, 9.000, 10.295)
+h_ii = c(0.9000, 0.7500, 0.2500, 0.1850)
+r_i = c(0,0,0,0)
+D_i = c(0,0,0,0)
+t_i = c(0,0,0,0)
+p_i = c(0,0,0,0)
+for (i in 1:4){
+  r_i[i] = (e_iHat[i])/(sigmaHat * sqrt(1 - h_ii[i]))
+}
+for (i in 1:4){
+  D_i[i] = (1/pPrime)*((r_i[i])^2)*((h_ii[i])/(1 - h_ii[i]))
+}
+for (i in 1:4){
+  t_i[i] = (r_i[i])*sqrt((n - pPrime - 1)/(n - pPrime - (r_i[i])^2))
+}
+for (i in 1:4){
+  p_i[i] = (n - 1)*2*pt(-abs(t_i[i]),n - pPrime - 1)
+}
+r_i
+D_i
+t_i
+p_i
+```
+The values in the last row are the p-values corrosponding to each test. As a result of using Bonferonni p-values, none of the cases indicate an outlier. 
+
+# 9.11
+```{r}
+attach(fuel2001)
+df = 46
+n = 52 # since 46 = n - pPrime - 1
+pPrime = 5
+sigmaHat = 64.891
+e_iHat = c(-163.145, -137.599, -102.409, -183.499, -49.452)
+h_ii = c(0.256, 0.162, 0.206, 0.084, 0.415)
+r_i = c(0,0,0,0,0)
+D_i = c(0,0,0,0,0)
+t_i = c(0,0,0,0,0)
+p_i = c(0,0,0,0,0)
+for (i in 1:5){
+  r_i[i] = (e_iHat[i])/(sigmaHat * sqrt(1 - h_ii[i]))
+}
+for (i in 1:5){
+  D_i[i] = (1/pPrime)*((r_i[i])^2)*((h_ii[i])/(1 - h_ii[i]))
+}
+for (i in 1:5){
+  t_i[i] = (r_i[i])*sqrt((n - pPrime - 1)/(n - pPrime - (r_i[i])^2))
+}
+for (i in 1:5){
+  p_i[i] = (n-1)*2*pt(-abs(t_i[i]),df)
+}
+### need to properly calculate p-values properly...
+D_i
+t_i
+p_i
+```
+From this, we can see that Alaska, with a D_i = 0.585, has the largest influence. It is important to note that none of these would be considered outliers.  
+
+# 9.16
+```{r}
+attach(florida)
+plot(Buchanan ~ Bush)
+m3 = lm(Buchanan ~ Bush)
+abline(m3)
+outlierTest(m3)
+```
+From this, we can clearly see that the PALM BEACH observation is a significant outlier - the most significant in fact. 
+
+Dade county is notablly lower than the model would suggest.
+```{r}
+floridaMinusPalmBeach = florida[-50,]
+plot (floridaMinusPalmBeach$Buchanan ~ floridaMinusPalmBeach$Bush)
+m4 = lm(floridaMinusPalmBeach$Buchanan ~ floridaMinusPalmBeach$Bush)
+abline(m4)
+summary(m4)
+outlierTest(m4)
+```
+Testing it in a similar fashion, we see that its status as an outlier is significant. 
+In conclusion, Palm Beach is a greater outlier that the next closest, Dade Conuty, by nearly 24 orders or magnitude. As such, it would be reasonable to conclude that the butterfly ballot unfairly skewed election results in this case.
+
+As the plot for m3 indicates a linear mean function with increasing vairance, we will transform the input variable to equalize the output variance. 
+```{r}
+mT = lm(Buchanan ~ sqrt(Bush))
+plot(Buchanan ~ sqrt(Bush))
+abline(mT)
+outlierTest(mT)
+```
+In this case, Palm Beach County remains an extremely significant outlier. As such, our conclusions go unchanged.

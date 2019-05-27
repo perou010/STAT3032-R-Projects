@@ -1,0 +1,85 @@
+---
+title: "Homework4"
+author: "Ryan Peroutka"
+date: "March 27, 2018"
+output: pdf_document
+---
+# 5.3
+```{r, include=FALSE}
+library(alr4)
+library(lsmeans)
+```
+## 1
+```{r}
+attach(UN11)
+m1 <- lm(lifeExpF ~ group)
+lsmeans(m1, pairwise ~ group)
+```
+The results in the second table line up with those presented in the table 5.2 in the book.
+
+## 2
+```{r}
+m1 <- lm(lifeExpF ~ group + log(ppgdp))
+lsmeans(m1, pairwise ~ group)
+```
+As a result of including log(ppgpd), the difference between oecd and other appears to be significantly different. oecd - africa and other - africa do not appear to have been affected.
+
+#5.4
+## 1
+```{r}
+attach(MinnLand)
+boxplot(log(acrePrice)~year)
+```
+The pattern of prices decreasing starting in 2007 does not appear to be the case with respect to farm sales. Although, they do start to drop off after 2010.> x <- MinnLand$acrePrice # Store acrePrice in x from MinnLand
+
+## 2
+```{r}
+m1 <- lm(log(acrePrice) ~ factor(year))
+summary(m1)
+```
+The intercept, 7.27 represents the average acrePrice in 2002. The following esitimates (2003-2011) represent the diference between that year's mean and 2002's mean. Apart from 2003, all of the t values appear significant. However, these values are only telling us that the means are significantly different from the reference mean - which isn't all that informative.
+
+## 3
+```{r}
+m2 <- update(m1,~.-1)
+summary(m2)
+for (yr in 2002:2011){
+  print(mean(log(acrePrice[year == yr])))
+}
+```
+It is clear that the printed values are the same as the estimates from the model.
+```{r}
+
+for (yr in 2002:2011){
+  sd <- sd(log(acrePrice[year == yr]))
+  n <- length(acrePrice[year == yr])
+  print(sd/sqrt(n))
+}
+```
+It is clear that the printed values differ from the std error values in the model. This is because the calculation for standard error depends on the difference between the mean/value in relation to the mean.
+
+# 5.8
+## 1
+```{r}
+attach(cakes)
+m1 <- lm(Y ~ X1 + X2 + I(X1^2) + I(X2^2)+ X1:X2)
+summary(m1)
+```
+## 2
+```{r}
+m1 <- lm(Y ~ X1 + X2 + I(X1^2) + I(X2^2)+ X1:X2 + block + block*X1 + block*X2)
+summary(m1)
+```
+block1 doesn't seem to have a significant effect. The same is the case for block1's interaction with X2. However, the interaction between X1 and block1 is significant. 
+
+# 5.10
+## 1
+(b) accounts for potential interaction between year and region while (a) does not.
+
+## 2
+```{r}
+m1 <- lm(log(acrePrice) ~ year + region + year:region)
+summary(m1)
+plot(effect("year:region",m1))
+```
+In the NorthWest, prices are lowest. As the years progress, the price in the SouthWest rises significantly relative to other regions. Other than this, prices tend to rise a similar amount over time. 

@@ -1,0 +1,146 @@
+---
+title: Homework 2
+author: Ryan Peroutka
+date: 2/13/18
+output: pdf_document
+---
+
+# 2.15
+## 1
+```{r, include=FALSE}
+library(alr4)
+attach(wblake)
+```
+### Confidence intervals for fish of ages 2,4,6 y/o respectivley
+```{r}
+wblakeRegression <- lm(Length~Age)
+for (i  in c(2,4,6)) {
+  z <- predict(wblakeRegression, data.frame(Age=i), se.fit = TRUE)
+  CI.se <- z$se.fit
+  alpha <- qt((1-.95)/2, df=z$df)
+  print(z$fit + c(alpha, -alpha) * CI.se)
+}
+```
+## 2
+### Confidence interval for fish of age 9 y/o
+```{r}
+z <- predict(wblakeRegression, data.frame(Age=9), se.fit = TRUE)
+CI.se <- z$se.fit
+print(z$fit + c(alpha, -alpha) * CI.se)
+```
+There is no data for fish of age 9 and minimal data for fish of age 8.\newline
+Therefore, we have no basis to assume the the trend will coninue in the same linear fashion as before.
+
+# 2.20
+##  1
+```{r, include=FALSE}
+attach(oldfaith)
+```
+```{r}
+oldfaithRegression <- lm(Interval~Duration)
+intercept <- coef(oldfaithRegression)[1]
+slope <- coef(oldfaithRegression)[2]
+print(intercept)
+print(slope)
+```
+
+### Prediction equation
+Interval = 0.177 * Duaration + 33.988
+\newline\newline
+Our the model predicts that, for ever 1 second increase in the duration an eruption, the avergae time ot the next eruption will increase by 0.177 minutes (10.62 seconds).
+
+## 2
+### 95% Confidence Interval
+```{r}
+prediction <- predict(oldfaithRegression, data.frame(Duration=250), se.fit=TRUE) 
+sigma.hat <-sqrt(deviance(oldfaithRegression)/df.residual(oldfaithRegression))
+SXX <- (sum((Duration - mean(Duration))^2))
+PI.se <- sigma.hat * sqrt(1 + 1/df.residual(oldfaithRegression) + (250 - mean(Duration))^2/SXX)
+alpha <- qt((1-.95)/2, df=prediction$df)
+print(prediction$fit + c(alpha, -alpha) * PI.se)
+```
+## 3
+### 95% Prediction Interval for .9 quantile
+```{r}
+mean.estimate <- intercept + slope * 250
+dev.estimate <- prediction$residual.scal
+quantile <- .8 # becuase it's two-sided
+x <- quantile * dev.estimate + mean.estimate
+CI.se <- prediction$se.fit
+alpha <- qt((1-.95)/2, df=prediction$df)
+print(x + c(alpha, -alpha) * CI.se)
+```
+# 3.1
+
+Of the top 6 most outling points, (Afghanistan, East Timor, Mali, Niger, Somalia, Zambia), 4 are in Africa. Taken as a whole, these outliers have significantly lower lifeExpF and pctUrban than the rest of the data.
+
+# 3.3
+## 1
+```{r, include=FALSE}
+attach(BGSgirls)
+```
+``` {r}
+plot(BGSgirls[,c(2,4,1,3,6,11)])
+```
+
+The strongest correlations appear to be between WT2/WT9, HT9/ST9 and WT9/BMI18. Some other factors appear to be related, but not quite as strongly.
+```{r}
+cor(BGSgirls[,c(2,4,1,3,6,11)])
+```
+
+The correlation matrix shows failry decent correlations between WT2/WT9, HT9/ST9 and WT9/BMI18. In addition, it shows that HT9/WT9 are strongly correlated, something I failed to notice before.
+## 3
+```{r}
+mlr <- lm(BMI18 ~ HT2 + HT9 + WT2 + WT9 + ST9)
+residualStandardError <- 2.14
+SYY <- sum((BMI18 - mean(BMI18))^2)
+RSS <- (residualStandardError^2) * 64
+rSquared <- (SYY - RSS) / SYY
+print(residualStandardError)
+print(rSquared)
+```
+
+```{r}
+betaJ <- coef(mlr)
+betaJ.se <- coef(summary(mlr))[,2]
+betaJ.tStar <- betaJ / betaJ.se
+```
+### beta1
+NH: beta1 = 0
+AH: beta1 != 0
+```{r}
+2*pt(betaJ.tStar[2], df = 64, lower.tail = T)
+```
+We fail to reject the null hypothesis since we do not have enough evidence to conclude that beta1 is significantly different from 0.
+
+### beta2
+NH: beta2 = 0
+AH: beta2 != 0
+```{r}
+2*pt(betaJ.tStar[3], df = 64, lower.tail = F)
+```
+We fail to reject the null hypothesis since we do not have enough evidence to conclude that beta2 is significantly different from 0.
+
+### beta3
+NH: beta3 = 0
+AH: beta3 != 0
+```{r}
+2*pt(betaJ.tStar[4], df = 64, lower.tail = T)
+```
+We fail to reject the null hypothesis since we do not have enough evidence to conclude that beta3 is significantly different from 0.
+
+### beta4
+NH: beta4 = 0
+AH: beta4 != 0
+```{r}
+2*pt(betaJ.tStar[5], df = 64, lower.tail = F)
+```
+We reject the null hypothesis and conclude that beta4 != 0.
+
+### beta5
+NH: beta5 = 0
+AH: beta5 != 0
+```{r}
+2*pt(betaJ.tStar[6], df = 64, lower.tail = T)
+```
+We reject the null hypothesis and conclude that beta5 != 0.

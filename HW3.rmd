@@ -1,0 +1,13 @@
+---
+title: "HW3"
+author: "Ryan"
+date: "March 8, 2018"
+output: pdf
+---
+
+# 4.7
+
+# 4.8
+
+# 4.9
+
